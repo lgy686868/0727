@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+             border: 0; 
+            list-style: none;
+        }
+        .box{
+            margin: 100px auto;
+            width: 500px;
+            height: 200px;
+            padding: 7px;
+            border:1px solid #ccc;
+            position: relative;
+        }
+        .tp{
+            width: 500px;
+            height: 200px;
+            position:relative;
+        }
+       
+        .tp li{
+            width: 500px;
+            height: 200px;
+            float:left;
+            overflow: hidden;
+        }
+
+        .tp ul{
+            width: 3000px;
+            top: 0;
+            left: 0;
+            position:absolute;
+        }
+        img{
+            vertical-align: top;
+        }
+        .box ol{
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            line-height: 20px;
+            text-align: center;
+        }
+        .box ol li{
+            float: left;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .box ol li.current{
+            background: yellow;
+        }
+        #arr{
+             display: none; 
+        }
+        #arr span{
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            margin-top: -20px;
+            background: #000;
+            cursor: pointer;
+            line-height: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-family: '黑体';
+            font-size: 30px;
+            color: #fff;
+            opacity: 0.3;
+            border: 1px solid #fff;
+        }
+        #arr #right{
+            right: 5px;
+            left: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 大盒子 -->
+    <div class="box" id="box">
+        <!-- 图片 -->
+        <div class="tp">
+            <ul>
+                <li><img src="images/1.jpg" width="500" height="200"/></li>
+                <li><img src="images/2.jpg" width="500" height="200"/></li>
+                <li><img src="images/3.jpg" width="500" height="200"/></li>
+                <li><img src="images/4.jpg" width="500" height="200"/></li>
+                <li><img src="images/5.jpg" width="500" height="200"/></li>
+            </ul>
+            <ol>
+                
+            </ol>
+        </div>
+        <!-- 按钮 -->
+        <div id="arr"><span id="left">&lt;</span><span id="right">&gt;</span></div>
+    </div>
+    <script>
+            // 缓动动画
+            function animate(obj, target) {
+                clearInterval(obj.timer);
+                obj.timer = setInterval(function () {
+                    var leader = obj.offsetLeft;
+                    var step = 30;
+                    step = leader < target ? step : -step;
+                    if (Math.abs(leader - target) >= Math.abs(step)) {
+                        leader = leader + step;
+                        obj.style.left = leader + "px";
+                    } else {
+                        obj.style.left = target + "px";
+                        clearInterval(obj.timer);
+                    }
+                }, 15);
+            }
+    </script>
+    <script>
+
+        var box = document.getElementById("box");
+        
+        var tp = box.children[0];
+        var ul = tp.children[0];
+        var lis = ul.children;
+        var ol = tp.children[1];
+        var arr = document.getElementById("arr");
+        var left = document.getElementById("left");
+        var right = document.getElementById("right");
+
+        var imgWidth = tp.offsetWidth;
+        console.log( ol )
+        //1.根据结构动态生成按钮
+        for( var i = 0; i < lis.length; i++ ){
+            var li = document.createElement("li");
+            li.innerHTML = i + 1;
+            ol.appendChild(li);
+        }
+
+        var olLis = ol.children;
+        olLis[0].className = "current";
+
+        //根据第一张图片生成最后一张图片
+        var firstImg = lis[0].cloneNode(true);
+        ul.appendChild(firstImg);
+        //2.鼠标经过当前高亮并且把ul移动到指定位置
+        for( var i = 0; i < olLis.length; i++ ){
+            olLis[i].index = i;
+            olLis[i].onmouseover = function(){
+               for( var i = 0; i < olLis.length; i++ ){
+                   olLis[i].className = "";
+               }
+               this.className = 'current';
+               var target = -this.index * imgWidth;
+               animate(ul, target);
+            } 
+        }
+        //3.鼠标点击箭头, 移动ul位置
+        box.onmouseover = function(){
+            arr.style.display = "block";
+
+        }
+        box.onmouseout = function(){
+            arr.style.display = "none";
+        }
+
+        var pic = 0;//记录当前图片的索引
+        var square = 0; //当前按钮亮起的索引
+        right.onclick = function(){
+            if( pic == lis.length - 1 ){
+                ul.style.left = 0;
+                pic = 0;
+            }
+            pic++;
+            var target = -pic * imgWidth;
+            animate(ul, target);
+            if( square < olLis.length-1 ){
+                square++;
+            }else{
+                square = 0;
+            }
+            for( var i = 0; i < olLis.length; i++ ){
+                olLis[i].className = '';
+            }
+            olLis[square].className = 'current';
+
+        }
+
+        left.onclick = function(){
+
+        }
+    </script>
+</body>
+</html>
