@@ -19,11 +19,13 @@
             padding: 7px;
             border:1px solid #ccc;
             position: relative;
+            
         }
         .tp{
             width: 500px;
             height: 200px;
             position:relative;
+            overflow: hidden;
         }
        
         .tp li{
@@ -38,6 +40,7 @@
             top: 0;
             left: 0;
             position:absolute;
+            
         }
         img{
             vertical-align: top;
@@ -136,8 +139,9 @@
         var arr = document.getElementById("arr");
         var left = document.getElementById("left");
         var right = document.getElementById("right");
-
         var imgWidth = tp.offsetWidth;
+
+        var timer = null;
         console.log( ol )
         //1.根据结构动态生成按钮
         for( var i = 0; i < lis.length; i++ ){
@@ -159,15 +163,24 @@
                for( var i = 0; i < olLis.length; i++ ){
                    olLis[i].className = "";
                }
+
+               //bug是假的第一张且图片按钮为1的时候, 瞬间跳到第一张
+               if( lis.length - 1 == pic && this.index == 0 ){
+                   ul.style.left = 0;
+               }
+               
                this.className = 'current';
                var target = -this.index * imgWidth;
                animate(ul, target);
+               //bug 当前图片索引和按钮索引和当前按钮统一起来
+               pic = square = this.index;
             } 
         }
         //3.鼠标点击箭头, 移动ul位置
         box.onmouseover = function(){
             arr.style.display = "block";
-
+            clearInterval(timer);
+            timer = setInterval(playNext, 3000);
         }
         box.onmouseout = function(){
             arr.style.display = "none";
@@ -176,6 +189,11 @@
         var pic = 0;//记录当前图片的索引
         var square = 0; //当前按钮亮起的索引
         right.onclick = function(){
+            
+            playNext();
+        }
+
+        function playNext(){
             if( pic == lis.length - 1 ){
                 ul.style.left = 0;
                 pic = 0;
@@ -192,12 +210,31 @@
                 olLis[i].className = '';
             }
             olLis[square].className = 'current';
-
         }
 
         left.onclick = function(){
+            if( pic == 0 ){
+                ul.style.left = -(lis.length - 1) * imgWidth + 'px';
+                pic = lis.length - 1;
+            }
+            pic--;
 
+            var target = -pic * imgWidth;
+            animate(ul, target);
+            console.log( target );
+
+            if( square > 0 ){
+                square--;
+            }else{
+                square = olLis.length - 1;
+            }
+            for( var i = 0; i < olLis.length; i++ ){
+                olLis[i].className = '';
+            }
+            olLis[square].className = 'current';
         }
+        //4.自动播放
+        timer = setInterval(playNext, 3000);
     </script>
 </body>
 </html>
